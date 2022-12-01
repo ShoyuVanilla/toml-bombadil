@@ -13,22 +13,10 @@ use tera::ErrorKind;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum LinkResult {
-    Updated {
-        source: PathBuf,
-        copy: PathBuf,
-        target: PathBuf,
-    },
-    Created {
-        source: PathBuf,
-        copy: PathBuf,
-        target: PathBuf,
-    },
-    Ignored {
-        source: PathBuf,
-    },
-    Unchanged {
-        target: PathBuf,
-    },
+    Updated { copy: PathBuf, target: PathBuf },
+    Created { copy: PathBuf, target: PathBuf },
+    Ignored { source: PathBuf },
+    Unchanged { target: PathBuf },
 }
 
 impl Dot {
@@ -117,7 +105,6 @@ impl Dot {
                 Err(_) => {
                     fs::copy(&source, &target)?;
                     Ok(LinkResult::Created {
-                        source: source.clone(),
                         target: target.clone(),
                         copy: self.copy_path()?,
                     })
@@ -150,7 +137,6 @@ impl Dot {
             {
                 Ok(LinkResult::Updated {
                     copy: self.copy_path()?,
-                    source: self.source()?,
                     target: self.target()?,
                 })
             } else if link_results
@@ -159,7 +145,6 @@ impl Dot {
             {
                 Ok(LinkResult::Created {
                     copy: self.copy_path()?,
-                    source: self.source()?,
                     target: self.target()?,
                 })
             } else {
@@ -177,7 +162,6 @@ impl Dot {
         dot_copy.set_permissions(permissions)?;
         Ok(LinkResult::Created {
             target: self.target()?,
-            source: self.source()?,
             copy: self.copy_path()?,
         })
     }
@@ -196,7 +180,6 @@ impl Dot {
             dot_copy.sync_data()?;
             Ok(LinkResult::Updated {
                 target: self.target()?,
-                source: self.source()?,
                 copy: self.copy_path()?,
             })
         }
@@ -219,7 +202,6 @@ impl Dot {
             dot_copy.sync_data()?;
             Ok(LinkResult::Updated {
                 target: self.target()?,
-                source: self.source()?,
                 copy: self.copy_path()?,
             })
         }
